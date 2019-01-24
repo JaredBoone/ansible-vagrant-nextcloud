@@ -1,0 +1,25 @@
+postgresql_databases:
+  - name: nextcloud
+postgresql_users:
+  - name: nextcloud
+    password: nextcloud
+php_memory_limit: "128M"
+php_max_execution_time: "90"
+php_upload_max_filesize: "256M"
+php_enablerepo: "webtatic"
+php_packages_state: "latest"
+php_packages:
+  - php71w
+  - php71w-cli
+  - php71w-common
+  - php71w-devel
+  - php71w-gd
+  - php71w-mbstring
+  - php71w-pdo
+  - php71w-xml
+apache_listen_port: 8080
+apache_vhosts:
+  - {servername: "localhost", documentroot: "/var/www/html/nextcloud"}
+nextcloud_database_type: "postgres"
+nextcloud_database_name: "nextcloud"
+nextcloud_database_prefix: "oc_"
