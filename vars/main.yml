@@ -1,15 +1,12 @@
 postgresql_databases:
-  - name: nextcloud
+  - name: db
 postgresql_users:
-  - name: nextcloud
-    password: nextcloud
+  - name: admin
+    password: secret
 php_memory_limit: "128M"
 php_max_execution_time: "90"
 php_upload_max_filesize: "256M"
 php_version: '7.1'
-apache_listen_port: 8080
+apache_listen_port: 80
 apache_vhosts:
-  - {servername: "localhost", documentroot: "/var/www/html/nextcloud"}
-nextcloud_database_type: "postgres"
-nextcloud_database_name: "nextcloud"
-nextcloud_database_prefix: "oc_"
+  - {servername: "localhost", documentroot: "/var/www/html"}

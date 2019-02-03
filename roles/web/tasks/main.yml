@@ -1,0 +1,12 @@
+---
+- name: Creates directory
+  file:
+    path: /var/www/html
+    state: directory
+  tags: web
+
+- name: Creates the phpinfo.php file
+  template: 
+    src: phpinfo.php 
+    dest: /var/www/html/phpinfo.php
+  tags: web  

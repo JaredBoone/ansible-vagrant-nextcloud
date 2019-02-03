@@ -9,3 +9,5 @@
     - role: geerlingguy.repo-remi
     - role: geerlingguy.php-versions
     - role: geerlingguy.php
+    - role: geerlingguy.redis
+    - role: web
