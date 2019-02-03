@@ -1,33 +1,19 @@
- 
-nextcloud_upgrade: false
-nextcloud_manage_yum_repos: true
-nextcloud_web_root: /var/www/html/nextcloud
-nextcloud_repo_url: https://download.nextcloud.com/server/releases
-nextcloud_version: latest
-nextcloud_data_root: /nextcloud/data
-nextcloud_upload_tmp_dir: /nextcloud/tmp
-nextcloud_postgres_db: nextcloud
-nextcloud_postgres_user: admin
-nextcloud_postgres_pw: secret
-nextcloud_admin_user: admin
-nextcloud_admin_pw: secret
-nextcloud_domain: nextcloud.mydomain.com
-nextcloud_trusted_domains: ['localhost', '{{ nextcloud_domain }}']
-nextcloud_config_options: # additional options to set in config.php
- - { option: overwrite.cli.url, value: "'{{ nextcloud_domain }}'" }
- - { option: mail_smtpmode, value: "''" }
-
+# https://galaxy.ansible.com/geerlingguy/apache
+apache_allow_override: "All"
+apache_document_root: "/var/www/html"
+apache_mods_enabled:
+  - rewrite.load
 apache_listen_port: 80
 apache_vhosts:
   - servername: "localhost"
-    documentroot: "/var/www/html"
+    documentroot: '{{ apache_document_root }}'
     extra_parameters: |
               ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000/var/www/html"
               Redirect permanent / https://localhost:8443/
 apache_listen_port_ssl: 443
 apache_vhosts_ssl:
   - servername: "localhost"
-    documentroot: "/var/www/html"
+    documentroot: '{{ apache_document_root }}'
     certificate_file: "/etc/pki/tls/certs/localhost.crt"
     certificate_key_file: "/etc/pki/tls/private/localhost.key"
     extra_parameters: |
@@ -36,12 +22,21 @@ apache_vhosts_ssl:
                 Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
               </IfModule>
 
+# <Directory "/var/www/html">
+#     Options Indexes FollowSymLinks
+#     AllowOverride All
+#     Require all granted
+# </Directory>
+
+
+# https://galaxy.ansible.com/geerlingguy/postgresql
 postgresql_databases:
   - name: '{{ nextcloud_postgres_db }}'
 postgresql_users:
   - name: '{{ nextcloud_postgres_user }}'
     password: '{{ nextcloud_postgres_pw }}'
 
+# https://galaxy.ansible.com/geerlingguy/php
 php_memory_limit: "512M"
 php_max_execution_time: "90"
 php_upload_max_filesize: "1024M"
@@ -67,12 +62,10 @@ php_packages:
   - php-pecl-imagick
 php_enablerepo: "epel,remi-php72"
 php_enable_php_fpm: true
-# php_fpm_daemon: php7.2-fpm
 php_opcache_enable_cli: "1"
 php_opcache_interned_strings_buffer: "8"
 php_opcache_max_accelerated_files: "10000"
 php_opcache_memory_consumption: "128"
 php_opcache_revalidate_freq: "1"
-#- { name: opcache.save_comments, value: 1 } # ???
 
 

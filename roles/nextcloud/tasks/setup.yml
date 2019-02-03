@@ -35,7 +35,7 @@
 - name: setup - ensure pdo_pgsql.ini config is present
   copy:
     src: pdo_pgsql.ini
-    dest: /etc/php.d/ 30-pdo_pgsql.ini
+    dest: /etc/php.d/30-pdo_pgsql.ini
 
 - name: setup - ensure alias for the occ command exists in /root/.bashrc
   lineinfile:
@@ -48,6 +48,13 @@
     state: directory
   register: new_installation
 
+- name: setup - ensure .htaccess is present for caldav/carddav
+  copy:
+    src: htaccess
+    dest: '{{ apache_document_root }}/.htaccess'
+    mode: 0600
+    owner: apache
+    group: apache
 
 - name: setup - ensure the nextcloud cronjob exists and runs every 15 min
   cron:
@@ -55,6 +62,15 @@
     minute: 15
     user: apache
     job: 'php -f {{ nextcloud_web_root | quote }}/cron.php'
+    cron_file: 'nextcloud'
+
+- name: setup - logrotate
+  template:
+    src: logrotate.nextcloud
+    dest: /etc/logrotate.d/nextcloud
+    owner: root
+    group: root
+    mode: 0644
 
 # - name: ensure options are set in .user.ini
 #   lineinfile:

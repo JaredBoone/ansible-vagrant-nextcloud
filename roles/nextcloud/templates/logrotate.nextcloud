@@ -1,0 +1,9 @@
+{{ nextcloud_data_root }}/nextcloud.log {
+	rotate 12
+	weekly
+	missingok
+	notifempty
+	compress
+	su apache apache
+	delaycompress
+}
