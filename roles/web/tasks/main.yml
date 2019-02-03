@@ -5,6 +5,12 @@
     state: directory
   tags: web
 
+- name: Creates the index.php file
+  template: 
+    src: index.php 
+    dest: /var/www/html/index.php
+  tags: web  
+
 - name: Creates the phpinfo.php file
   template: 
     src: phpinfo.php 

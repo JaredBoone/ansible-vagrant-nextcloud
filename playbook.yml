@@ -5,11 +5,20 @@
     - vars/main.yml
   roles:
     - role: geerlingguy.apache
+      tags: apache
     - role: geerlingguy.postgresql
+      tags: postgres
     - role: geerlingguy.repo-remi
+      tags: php
     - role: geerlingguy.php-versions
+      tags: php
     - role: geerlingguy.php
+      tags: php
     - role: geerlingguy.redis
+      tags: redis
     - role: geerlingguy.apache-php-fpm
+      tags: apache-php-fpm
     - role: web
+      tags: web
     - role: nextcloud
+      tags: nextcloud

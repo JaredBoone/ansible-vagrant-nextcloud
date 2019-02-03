@@ -1,0 +1,1 @@
+<?php header("Location: /nextcloud/index.php"); /* Redirect browser */ ?>
