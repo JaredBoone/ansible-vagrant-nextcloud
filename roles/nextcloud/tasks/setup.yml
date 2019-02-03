@@ -1,0 +1,79 @@
+---
+# task file for JaredBoone.nextcloud
+
+# - name: ensure epel-relase and webtatic yum repos are installed
+#   yum:
+#     name:
+#       - epel-release
+#       - https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+#     state: present
+#   when: nextcloud_manage_yum_repos
+
+# - name: ensure required packages are installed
+#   yum:
+#     name: 
+#       - crontabs
+#       - libselinux-python
+#       - policycoreutils-python
+#       - lbzip2-utils
+#       - openssl
+#       - libreoffice
+#       - jq
+
+- name: ensure php options are set
+  lineinfile:
+    path: /etc/php.ini
+    regexp: '^{{ item.option }}'
+    line: '{{ item.option }} = {{ item.value }}'    
+  with_items:
+    - { option: 'expose_php', value: 'Off' }
+    - { option: 'upload_tmp_dir', value: '{{ nextcloud_upload_tmp_dir }}' }
+  notify:
+    - reload php-fpm
+    - reload httpd
+    
+- name: ensure pdo_pgsql.ini config is present
+  copy:
+    src: pdo_pgsql.ini
+    dest: /etc/php.d/ 30-pdo_pgsql.ini
+
+- name: ensure alias for the occ command exists in /root/.bashrc
+  lineinfile:
+    name: /root/.bashrc
+    line: "alias occ='sudo -u apache {{ nextcloud_web_root }}/occ'"
+
+- name: ensure {{ nextcloud_web_root }} is present
+  file:
+    name: '{{ nextcloud_web_root }}'
+    state: directory
+  register: new_installation
+
+
+# call filesystem checks if not done by previous tasks
+- import_tasks: permissions.yml
+  when: not new_installation.changed and not nextcloud_upgrade
+
+- name: performance tuning - ensure the nextcloud cronjob exists and runs every 15 min
+  cron:
+    name: nextcloud
+    minute: 15
+    user: apache
+    job: 'php -f {{ nextcloud_web_root | quote }}/cron.php'
+
+# - name: ensure options are set in .user.ini
+#   lineinfile:
+#     path: '{{ nextcloud_web_root }}/.user.ini'
+#     regexp: '^{{ item.option }}'
+#     line: '{{ item.option }}={{ item.value }}'
+#   with_items:
+#     - { option: 'upload_max_filesize', value: '{{ nextcloud_max_upload_size }}' } 
+#     - { option: 'post_max_size', value: '{{ nextcloud_max_upload_size }}' }
+
+# - name: ensure additional options are set in config.php if defined
+#   lineinfile:
+#     path: '{{ nextcloud_web_root }}/config/config.php' 
+#     regexp: '^\s*''{{ item.option }}'''
+#     line: '  ''{{ item.option }}'' => {{ item.value }},'
+#     insertafter: '\$CONFIG'
+#   with_items: '{{ nextcloud_config_options }}'
+#   when: nextcloud_config_options is defined

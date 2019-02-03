@@ -10,4 +10,6 @@
     - role: geerlingguy.php-versions
     - role: geerlingguy.php
     - role: geerlingguy.redis
+    - role: geerlingguy.apache-php-fpm
     - role: web
+    - role: nextcloud

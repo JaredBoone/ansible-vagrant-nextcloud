@@ -1,0 +1,27 @@
+---
+# handlers file for JaredBoone.nextcloud
+
+- name: reload httpd
+  service:
+    name: httpd
+    state: reloaded
+
+- name: reload php-fpm
+  service:
+    name: php-fpm
+    state: reloaded
+
+- name: restart php-fpm
+  service:
+    name: php-fpm
+    state: restarted
+
+- name: restart postgresql-10
+  service:
+    name: postgresql-10
+    state: restarted
+
+- name: restart redis
+  service:
+    name: redis
+    state: restarted 
