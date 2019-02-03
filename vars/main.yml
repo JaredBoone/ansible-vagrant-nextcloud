@@ -46,6 +46,7 @@ php_packages:
   - php-mcrypt
   - php-opcache
   - php-pdo
+  - php-pdo_pgsql
   - php-pecl-apcu
   - php-pecl-zip
   - php-posix
