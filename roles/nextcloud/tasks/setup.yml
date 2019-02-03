@@ -20,7 +20,7 @@
 #       - libreoffice
 #       - jq
 
-- name: ensure php options are set
+- name: setup - ensure php options are set
   lineinfile:
     path: /etc/php.ini
     regexp: '^{{ item.option }}'
@@ -32,28 +32,24 @@
     - reload php-fpm
     - reload httpd
     
-- name: ensure pdo_pgsql.ini config is present
+- name: setup - ensure pdo_pgsql.ini config is present
   copy:
     src: pdo_pgsql.ini
     dest: /etc/php.d/ 30-pdo_pgsql.ini
 
-- name: ensure alias for the occ command exists in /root/.bashrc
+- name: setup - ensure alias for the occ command exists in /root/.bashrc
   lineinfile:
     name: /root/.bashrc
     line: "alias occ='sudo -u apache {{ nextcloud_web_root }}/occ'"
 
-- name: ensure {{ nextcloud_web_root }} is present
+- name: setup - ensure {{ nextcloud_web_root }} is present
   file:
     name: '{{ nextcloud_web_root }}'
     state: directory
   register: new_installation
 
 
-# call filesystem checks if not done by previous tasks
-- import_tasks: permissions.yml
-  when: not new_installation.changed and not nextcloud_upgrade
-
-- name: performance tuning - ensure the nextcloud cronjob exists and runs every 15 min
+- name: setup - ensure the nextcloud cronjob exists and runs every 15 min
   cron:
     name: nextcloud
     minute: 15
@@ -69,11 +65,3 @@
 #     - { option: 'upload_max_filesize', value: '{{ nextcloud_max_upload_size }}' } 
 #     - { option: 'post_max_size', value: '{{ nextcloud_max_upload_size }}' }
 
-# - name: ensure additional options are set in config.php if defined
-#   lineinfile:
-#     path: '{{ nextcloud_web_root }}/config/config.php' 
-#     regexp: '^\s*''{{ item.option }}'''
-#     line: '  ''{{ item.option }}'' => {{ item.value }},'
-#     insertafter: '\$CONFIG'
-#   with_items: '{{ nextcloud_config_options }}'
-#   when: nextcloud_config_options is defined

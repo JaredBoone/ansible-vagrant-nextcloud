@@ -1,4 +1,4 @@
-
+ 
 nextcloud_upgrade: false
 nextcloud_manage_yum_repos: true
 nextcloud_web_root: /var/www/html/nextcloud
@@ -13,16 +13,27 @@ nextcloud_admin_user: admin
 nextcloud_admin_pw: secret
 nextcloud_domain: nextcloud.mydomain.com
 nextcloud_trusted_domains: ['localhost', '{{ nextcloud_domain }}']
+nextcloud_config_options: # additional options to set in config.php
+ - { option: overwrite.cli.url, value: "'{{ nextcloud_domain }}'" }
+ - { option: mail_smtpmode, value: "''" }
+
+apache_listen_port: 80
+apache_vhosts:
+  - servername: "localhost"
+    documentroot: "/var/www/html"
+    extra_parameters: |
+              ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000/var/www/html"
 
 postgresql_databases:
   - name: '{{ nextcloud_postgres_db }}'
 postgresql_users:
   - name: '{{ nextcloud_postgres_user }}'
     password: '{{ nextcloud_postgres_pw }}'
+
 php_memory_limit: "512M"
 php_max_execution_time: "90"
 php_upload_max_filesize: "1024M"
-php_version: '7.1'
+php_version: '7.2'
 php_packages: 
   - php
   - php-cli
@@ -30,24 +41,24 @@ php_packages:
   - php-devel
   - php-fpm
   - php-gd
+  - php-json
   - php-mbstring
+  - php-mcrypt
+  - php-opcache
   - php-pdo
   - php-pecl-apcu
+  - php-pecl-zip
+  - php-posix
   - php-xml
-  - php-mcrypt
-
+  - php-fpm
+php_enablerepo: "epel,remi-php72"
 php_enable_php_fpm: true
+# php_fpm_daemon: php7.2-fpm
 php_opcache_enable_cli: "1"
 php_opcache_interned_strings_buffer: "8"
 php_opcache_max_accelerated_files: "10000"
 php_opcache_memory_consumption: "128"
 php_opcache_revalidate_freq: "1"
 #- { name: opcache.save_comments, value: 1 } # ???
-apache_listen_port: 80
-apache_vhosts:
-  - servername: "localhost"
-    documentroot: "/var/www/html"
-    extra_parameters: |
-              ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000/var/www/html"
 
 

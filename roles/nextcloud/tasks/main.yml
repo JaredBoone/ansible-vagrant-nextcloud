@@ -4,7 +4,7 @@
 - import_tasks: 'setup.yml'
   tags: nextcloud
 
-- import_tasks: 'installation.yml'
+- import_tasks: 'install.yml'
   when: new_installation.changed
   tags: nextcloud
 
