@@ -1,7 +1,7 @@
 ---
 # task file for JaredBoone.nextcloud
 
-- import_tasks: 'setup.yml'
+- import_tasks: 'preinstall.yml'
   tags: nextcloud
 
 - import_tasks: 'install.yml'
@@ -11,4 +11,8 @@
 - import_tasks: 'upgrade.yml'
   when: nextcloud_upgrade
   tags: nextcloud
+
+- import_tasks: 'postinstall.yml'
+  tags: nextcloud
+
 

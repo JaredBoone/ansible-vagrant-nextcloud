@@ -1,0 +1,119 @@
+---
+# postinstall.yml
+
+- name: preinstall - ensure php options are set
+  lineinfile:
+    path: /etc/php.ini
+    regexp: '^{{ item.option }}'
+    line: '{{ item.option }} = {{ item.value }}'    
+  with_items:
+    - { option: 'expose_php', value: 'Off' }
+    - { option: 'upload_tmp_dir', value: '{{ nextcloud_tmp }}' }
+  notify:
+    - reload php-fpm
+    - reload httpd
+    
+- name: preinstall - ensure pdo_pgsql.ini config is present
+  copy:
+    src: pdo_pgsql.ini
+    dest: /etc/php.d/30-pdo_pgsql.ini
+
+- name: preinstall - ensure alias for the occ command exists in /root/.bashrc
+  lineinfile:
+    name: /root/.bashrc
+    line: "alias occ='sudo -u apache {{ nextcloud_web_root }}/occ'"
+
+- name: preinstall - ensure .htaccess is present for caldav/carddav
+  copy:
+    src: htaccess
+    dest: '{{ apache_document_root }}/.htaccess'
+    mode: 0644
+    owner: apache
+    group: apache
+  notify: reload httpd    
+
+- name: ensure php-fpm www.conf settings are correct
+  lineinfile:
+    path: /etc/php-fpm.d/www.conf
+    regexp: '^;?{{ item.name }}\s*='
+    line: '{{ item.name }} = {{ item.value }}'
+  with_items:
+    - { name: user, value: apache }
+    - { name: group, value: apache }
+    - { name: clear_env, value: 'no' }
+  notify: reload php-fpm
+
+- name: preinstall - ensure the nextcloud cronjob exists and runs every 15 min
+  cron:
+    name: nextcloud
+    minute: 15
+    user: apache
+    job: 'php -f {{ nextcloud_web_root | quote }}/cron.php'
+    cron_file: 'nextcloud'
+
+- name: preinstall - logrotate
+  template:
+    src: logrotate.nextcloud
+    dest: /etc/logrotate.d/nextcloud
+    owner: root
+    group: root
+    mode: 0644
+
+# - name: ensure options are set in .user.ini
+#   lineinfile:
+#     path: '{{ nextcloud_web_root }}/.user.ini'
+#     regexp: '^{{ item.option }}'
+#     line: '{{ item.option }}={{ item.value }}'
+#   with_items:
+#     - { option: 'upload_max_filesize', value: '{{ nextcloud_max_upload_size }}' } 
+#     - { option: 'post_max_size', value: '{{ nextcloud_max_upload_size }}' }
+
+- name: postinstall - ensure trusted domains are set
+  command: 'php {{ nextcloud_web_root }}/occ config:system:set trusted_domains {{ item.0 }} --value "{{ item.1 }}"'
+  become: true
+  become_user: apache
+  with_indexed_items:
+    - '{{ nextcloud_trusted_domains  }}'
+
+# performance tuning
+# https://docs.nextcloud.com/server/12/admin_manual/configuration_server/server_tuning.html
+
+- name: postinstall - configure APCu for local caching
+  command: 'php {{ nextcloud_web_root }}/occ config:system:set memcache.local --value "\OC\Memcache\APCu"'
+  become: true
+  become_user: apache
+
+# - name: performance tuning - use redis for file locking
+#   command: 'php {{ nextcloud_web_root }}/occ config:system:set memcache.locking --value "\OC\Memcache\Redis"'
+#   become: true
+#   become_user: apache
+
+# - name: performance tuning - connect to redis on unixsocket
+#   command: 'php {{ nextcloud_web_root }}/occ config:system:set redis "host" --value "/var/run/redis/redis.sock"'
+#   become: true
+#   become_user: apache
+
+# - name: performance tuning - connect to redis on unixsocket, set port to 0
+#   command: 'php {{ nextcloud_web_root }}/occ config:system:set redis "port" --value 0'
+#   become: true
+#   become_user: apache
+
+- name: postinstall - js and css asset management
+  command: 'php {{ nextcloud_web_root }}/occ config:system:set asset-pipeline.enabled --value true'
+  become: true
+  become_user: apache
+
+
+- name: postinstall - ensure additional options are set in config.php if defined
+  command: 'php {{ nextcloud_web_root }}/occ config:system:set {{ item.option }} --value {{ item.value }}'
+  become: true
+  become_user: apache
+  with_items: '{{ nextcloud_config_options }}'
+  when: nextcloud_config_options is defined
+
+
+- name: postinstall - index db tables
+  command: 'php {{ nextcloud_web_root }}/occ --no-interaction db:convert-filecache-bigint'
+  become: true
+  become_user: apache
+  
