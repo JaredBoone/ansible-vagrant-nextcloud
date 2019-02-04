@@ -19,3 +19,4 @@
   with_items:
     - '{{ nextcloud_web_root }}'
     - '{{ nextcloud_data_root }}'
+    - '{{ nextcloud_tmp }}'

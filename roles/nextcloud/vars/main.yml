@@ -4,7 +4,7 @@ nextcloud_web_root: '{{ apache_document_root }}/nextcloud'
 nextcloud_repo_url: https://download.nextcloud.com/server/releases
 nextcloud_version: latest
 nextcloud_data_root: /nextcloud/data
-nextcloud_upload_tmp_dir: /nextcloud/tmp
+nextcloud_tmp: /nextcloud/tmp
 nextcloud_postgres_db: nextcloud
 nextcloud_postgres_user: admin
 nextcloud_postgres_pw: secret
