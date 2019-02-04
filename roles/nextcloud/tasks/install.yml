@@ -62,8 +62,8 @@
   when: nextcloud_config_options is defined
 
 
-- name: install - index db tables
-  command: 'php {{ nextcloud_web_root }}/occ db:convert-filecache-bigint'
-  become: true
-  become_user: apache
+# - name: install - index db tables
+#   command: 'php {{ nextcloud_web_root }}/occ db:convert-filecache-bigint'
+#   become: true
+#   become_user: apache
   
