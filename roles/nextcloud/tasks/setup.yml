@@ -52,9 +52,21 @@
   copy:
     src: htaccess
     dest: '{{ apache_document_root }}/.htaccess'
-    mode: 0600
+    mode: 0644
     owner: apache
     group: apache
+  notify: reload httpd    
+
+- name: ensure php-fpm www.conf settings are correct
+  lineinfile:
+    path: /etc/php-fpm.d/www.conf
+    regexp: '^;?{{ item.name }}\s*='
+    line: '{{ item.name }} = {{ item.value }}'
+  with_items:
+    - { name: user, value: apache }
+    - { name: group, value: apache }
+    - { name: clear_env, value: 'no' }
+  notify: reload php-fpm
 
 - name: setup - ensure the nextcloud cronjob exists and runs every 15 min
   cron:

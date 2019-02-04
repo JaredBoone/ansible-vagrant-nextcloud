@@ -13,5 +13,5 @@ nextcloud_admin_pw: secret
 nextcloud_domain: nextcloud.mydomain.com
 nextcloud_trusted_domains: ['localhost', '{{ nextcloud_domain }}']
 nextcloud_config_options: # additional options to set in config.php
- - { option: overwrite.cli.url, value: "'{{ nextcloud_domain }}'" }
+ - { option: overwrite.cli.url, value: "'https://{{ nextcloud_domain }}/nextcloud'" }
  - { option: mail_smtpmode, value: "''" }
