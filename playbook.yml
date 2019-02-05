@@ -1,24 +1,27 @@
 ---
-- hosts: all
+- hosts: vagrant
+  user: vagrant
   become: yes
-  vars_files:
-    - vars/main.yml
+  vars:
+    server_env: vagrant
   roles:
-    - role: geerlingguy.apache
+    - role: postgresql
+      tags: pg
+    - role: apache
       tags: apache
-    - role: geerlingguy.postgresql
-      tags: postgres
-    - role: geerlingguy.repo-remi
-      tags: php
-    - role: geerlingguy.php-versions
-      tags: php
-    - role: geerlingguy.php
+    - role: php
       tags: php
     - role: geerlingguy.redis
-      tags: redis
-    - role: geerlingguy.apache-php-fpm
-      tags: apache-php-fpm
-    - role: web
-      tags: web
     - role: nextcloud
-      tags: nextcloud
+
+- hosts: remotes
+  become: yes
+  roles:
+    - role: postgresql
+      tags: pg
+    - role: apache
+      tags: apache
+    - role: php
+      tags: php
+    - role: geerlingguy.redis
+    - role: nextcloud

@@ -1,0 +1,32 @@
+---
+- name: mod_fastcgi - install mod_fastcgi
+  yum: 
+    name: http://ftp.tu-chemnitz.de/pub/linux/dag/redhat/el6/en/x86_64/rpmforge/RPMS/mod_fastcgi-2.4.6-1.el6.rf.x86_64.rpm
+    state: present
+
+- name: mod_fastcgi - ensure php.conf is abset
+  file:
+    state: absent
+    path: /etc/httpd/conf.d/php.conf
+
+- name: mod_fastcgi - ensure fastcgi.conf is present
+  copy:
+    src: fastcgi.conf
+    dest: /etc/httpd/conf.d/fastcgi.conf
+
+- name: mod_fastcgi - ensure php-wrapper is present
+  copy:
+    src: /usr/share/doc/mod_fastcgi-2.4.6/php-wrapper
+    dest: /var/www/cgi-bin/php-fastcgi
+    owner: apache
+    group: apache
+    mode: 0774
+    remote_src: true
+  become: yes    
+
+- name: mod_fastcgi - check if /var/log/httpd is present and owned by apache
+  file:
+    name: /var/log/httpd
+    owner: apache
+    group: apache
+    state: directory

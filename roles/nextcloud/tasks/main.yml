@@ -8,11 +8,10 @@
   when: new_installation.changed
   tags: nextcloud
 
-- import_tasks: 'upgrade.yml'
-  when: nextcloud_upgrade
+- import_tasks: 'postinstall.yml'
   tags: nextcloud
 
-- import_tasks: 'postinstall.yml'
+- import_tasks: 'upgrade.yml'
   tags: nextcloud
 
 

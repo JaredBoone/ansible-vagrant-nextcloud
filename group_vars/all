@@ -1,3 +1,30 @@
+host_fqdn: "localhost"
+host_ssl_port: 8443
+
+# CentOS variables
+centos_7_installed: false
+
+# Nextcloud variables
+nextcloud_web_root: '{{ apache_document_root }}/nextcloud'
+nextcloud_version: latest-14
+nextcloud_data_root: /nextcloud/data
+nextcloud_tmp: /nextcloud/tmp
+nextcloud_postgres_db: nextcloud
+nextcloud_postgres_user: nextcloud
+nextcloud_postgres_pw: secret
+nextcloud_admin_user: admin
+nextcloud_admin_pw: secret
+nextcloud_upgrade: yes
+nextcloud_config_options: # additional options to set in config.php
+ - { option: overwrite.cli.url, value: "'https://{{ host_fqdn }}/nextcloud'" }
+ - { option: mail_smtpmode, value: "''" }
+nextcloud_config_ldap_enabled: false
+nextcloud_config_ldap_options: []
+
+# SSL certificate file paths
+ssl_crt: "/etc/pki/tls/certs/localhost.crt"
+ssl_key: "/etc/pki/tls/private/localhost.key"
+
 # https://galaxy.ansible.com/geerlingguy/apache
 apache_allow_override: "All"
 apache_document_root: "/var/www/html"
@@ -8,27 +35,11 @@ apache_vhosts:
   - servername: "localhost"
     documentroot: '{{ apache_document_root }}'
     extra_parameters: |
-              Redirect permanent / https://localhost:8443/
+              Redirect permanent / https://{{host_fqdn}}:{{host_ssl_port}}/
 apache_listen_port_ssl: 443
-apache_vhosts_ssl:
-  - servername: "localhost"
-    documentroot: '{{ apache_document_root }}'
-    certificate_file: "/etc/pki/tls/certs/localhost.crt"
-    certificate_key_file: "/etc/pki/tls/private/localhost.key"
-    extra_parameters: |
-              ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000/var/www/html"
-              <IfModule mod_headers.c>
-                Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
-              </IfModule>
-
-# <Directory "/var/www/html">
-#     Options Indexes FollowSymLinks
-#     AllowOverride All
-#     Require all granted
-# </Directory>
-
 
 # https://galaxy.ansible.com/geerlingguy/postgresql
+use_postgresql_10: false
 postgresql_databases:
   - name: '{{ nextcloud_postgres_db }}'
 postgresql_users:
@@ -39,7 +50,8 @@ postgresql_users:
 php_memory_limit: "512M"
 php_max_execution_time: "90"
 php_upload_max_filesize: "1024M"
-php_version: '7.2'
+php_version: '7.3'
+php_packages_state: "latest"
 php_packages: 
   - php
   - php-cli
@@ -55,6 +67,7 @@ php_packages:
   - php-pdo
   - php-pdo_pgsql
   - php-pecl-apcu
+  - php-pecl-redis
   - php-pecl-zip
   - php-posix
   - php-xml

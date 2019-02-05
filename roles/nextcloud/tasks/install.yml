@@ -9,12 +9,13 @@
       - '--show-stored-names'
     remote_src: true
     dest: '{{ nextcloud_web_root }}'
+  when: new_installation.changed
 
 - import_tasks: 'permissions.yml'
-  tags: nextcloud
 
-- name: install - ensure nextcloud install is finished
+- name: install - ensure nextcloud DB install is finished
   command: 'php {{ nextcloud_web_root }}/occ maintenance:install --database "pgsql" --database-name "{{ nextcloud_postgres_db }}"  --database-user "{{ nextcloud_postgres_user }}" --database-pass "{{ nextcloud_postgres_pw }}" --admin-user "{{ nextcloud_admin_user }}" --admin-pass "{{ nextcloud_admin_pw }}" --data-dir "{{ nextcloud_data_root }}"'
   become: true
   become_user: apache
+
 

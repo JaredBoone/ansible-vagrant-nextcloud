@@ -1,26 +1,5 @@
 ---
-# task file for JaredBoone.nextcloud
-
-# - name: ensure epel-relase and webtatic yum repos are installed
-#   yum:
-#     name:
-#       - epel-release
-#       - https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
-#     state: present
-#   when: nextcloud_manage_yum_repos
-
-# - name: ensure required packages are installed
-#   yum:
-#     name: 
-#       - crontabs
-#       - libselinux-python
-#       - policycoreutils-python
-#       - lbzip2-utils
-#       - openssl
-#       - libreoffice
-#       - jq
-
-- name: preinstall - ensure {{ nextcloud_web_root }} is present
+- name: preinstall - check if {{ nextcloud_web_root }} is present
   file:
     name: '{{ nextcloud_web_root }}'
     owner: apache

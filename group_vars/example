@@ -1,0 +1,22 @@
+host_fqdn: "www.example.com"
+host_ssl_port: 443
+
+# Nextcloud variables
+nextcloud_web_root: '{{ apache_document_root }}/mydrive'
+nextcloud_version: latest
+nextcloud_data_root: /mydrive/data
+nextcloud_tmp: /mydrive/tmp
+nextcloud_postgres_db: mydrive
+nextcloud_postgres_user: mydrive
+nextcloud_postgres_pw: S3cr3+
+nextcloud_admin_user: admin
+nextcloud_admin_pw: p@ssw0rd
+nextcloud_upgrade: false
+nextcloud_config_options: # additional options to set in config.php
+ - { option: overwrite.cli.url, value: "'https://{{ host_fqdn }}/mydrive'" }
+ - { option: mail_smtpmode, value: "''" }
+ - { option: lost_password_link, value: "'enabled'" }
+
+# SSL certificate file paths
+ssl_crt: "/etc/sslcerts/{{ host_fqdn }}.crt"
+ssl_key: "/etc/sslcerts/{{ host_fqdn }}.key"

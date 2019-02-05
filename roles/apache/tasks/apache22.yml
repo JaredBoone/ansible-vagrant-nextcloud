@@ -1,0 +1,25 @@
+---
+- import_role: 
+    name: geerlingguy.apache
+  vars:
+    apache_vhosts_filename: "ssl.conf"
+    apache_global_vhost_settings: | 
+      LoadModule ssl_module modules/mod_ssl.so 
+      Listen 443 
+      SSLPassPhraseDialog builtin 
+      SSLSessionCache shmcb:/var/cache/mod_ssl/scache(512000) 
+      SSLSessionCacheTimeout 300 
+      SSLMutex default 
+      SSLRandomSeed startup file:/dev/urandom 256 
+      SSLRandomSeed connect builtin 
+      SSLCryptoDevice builtin
+      SSLProxyEngine on
+    apache_vhosts_ssl:
+      - servername: "{{host_fqdn}}"
+        documentroot: '{{ apache_document_root }}'
+        certificate_file: "{{ ssl_crt }}"
+        certificate_key_file: "{{ ssl_key }}"
+        extra_parameters: |
+                  <IfModule mod_headers.c>
+                    Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
+                  </IfModule>

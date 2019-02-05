@@ -1,0 +1,15 @@
+---
+- include_role: 
+    name: geerlingguy.repo-remi
+
+- include_role: 
+    name: geerlingguy.php-versions
+
+- include_role: 
+    name: geerlingguy.php
+
+- import_tasks: 'mod_fastcgi.yml'
+  when: not centos_7_installed
+
+- include_role: 
+    name: geerlingguy.apache-php-fpm

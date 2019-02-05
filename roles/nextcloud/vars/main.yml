@@ -1,17 +1,3 @@
-nextcloud_upgrade: false
-nextcloud_manage_yum_repos: true
-nextcloud_web_root: '{{ apache_document_root }}/nextcloud'
+---
 nextcloud_repo_url: https://download.nextcloud.com/server/releases
-nextcloud_version: latest
-nextcloud_data_root: /nextcloud/data
-nextcloud_tmp: /nextcloud/tmp
-nextcloud_postgres_db: nextcloud
-nextcloud_postgres_user: admin
-nextcloud_postgres_pw: secret
-nextcloud_admin_user: admin
-nextcloud_admin_pw: secret
-nextcloud_domain: nextcloud.mydomain.com
-nextcloud_trusted_domains: ['localhost', '{{ nextcloud_domain }}']
-nextcloud_config_options: # additional options to set in config.php
- - { option: overwrite.cli.url, value: "'https://{{ nextcloud_domain }}/nextcloud'" }
- - { option: mail_smtpmode, value: "''" }
+nextcloud_trusted_domains: ['localhost', '{{ host_fqdn }}']

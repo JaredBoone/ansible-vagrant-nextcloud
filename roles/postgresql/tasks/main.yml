@@ -1,0 +1,13 @@
+---
+- name: install libselinux-python
+  yum:
+    name: libselinux-python
+    state: present
+  become: yes
+  when: not centos_7_installed
+
+- import_tasks: pgdg95.yml
+  when: not use_postgresql_10
+
+- import_tasks: pgdg10.yml
+  when: use_postgresql_10

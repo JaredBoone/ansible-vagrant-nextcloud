@@ -1,0 +1,30 @@
+---
+- name: install pgdg-centos95-9.5-3 PostgreSQL repository
+  yum:
+    name: https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-6-x86_64/pgdg-centos95-9.5-3.noarch.rpm
+    state: present
+  become: yes
+  when: not centos_7_installed
+
+- name: install pgdg-centos95-9.5-3 PostgreSQL repository
+  yum:
+    name: https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-3.noarch.rpm
+    state: present
+  become: yes
+  when: centos_7_installed
+
+- import_role: 
+    name: geerlingguy.postgresql
+  vars:
+    postgresql_enablerepo: pgdg95
+    postgresql_version: 9.5
+    postgresql_data_dir: /var/lib/pgsql/9.5/data
+    postgresql_bin_path: /usr/pgsql-9.5/bin
+    postgresql_config_path: /var/lib/pgsql/9.5/data
+    postgresql_daemon: postgresql-9.5
+    postgresql_packages:
+    - postgresql95
+    - postgresql95-server
+    - postgresql95-libs
+    - postgresql95-contrib
+    - postgresql95-devel
