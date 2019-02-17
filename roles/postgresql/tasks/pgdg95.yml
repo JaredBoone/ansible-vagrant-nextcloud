@@ -16,6 +16,11 @@
 - import_role: 
     name: geerlingguy.postgresql
   vars:
+    postgresql_databases:
+      - name: '{{ postgres_db_name }}'
+    postgresql_users:
+      - name: '{{ postgres_db_user }}'
+        password: '{{ postgres_db_user_password }}'
     postgresql_enablerepo: pgdg95
     postgresql_version: 9.5
     postgresql_data_dir: /var/lib/pgsql/9.5/data

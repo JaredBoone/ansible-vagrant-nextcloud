@@ -1,0 +1,20 @@
+# nextcloud
+nextcloud_version: latest-14
+nextcloud_instance_name: mydrive
+nextcloud_data_root: /{{ nextcloud_instance_name }}/data
+nextcloud_tmp: /{{ nextcloud_instance_name }}/tmp
+nextcloud_db_user_password: S3cr3+
+nextcloud_admin_pw: p@ssw0rd
+nextcloud_config_options: # additional options to set in config.php
+ - { option: overwrite.cli.url, value: "'https://{{ nextcloud_fqdn }}/{{ nextcloud_instance_name }}'" }
+ - { option: mail_smtpmode, value: "''" }
+ - { option: lost_password_link, value: "'enabled'" }
+nextcloud_config_installed_apps:
+ - user_usage_report
+
+# apache
+apache_host_ssl_port: 443
+apache_ssl_crt: "/etc/sslcerts/{{ nextcloud_fqdn }}.crt"
+apache_ssl_key: "/etc/sslcerts/{{ nextcloud_fqdn }}.key"
+apache_ssl_chain: "/etc/sslcerts/ca-bundle.crt"
+apache_ssl_use_chain: true

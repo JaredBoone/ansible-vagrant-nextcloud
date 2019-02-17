@@ -1,84 +1,22 @@
-host_fqdn: "localhost"
-host_ssl_port: 8443
 
-# CentOS variables
+# centos
 centos_7_installed: false
 
-# Nextcloud variables
-nextcloud_web_root: '{{ apache_document_root }}/nextcloud'
-nextcloud_version: latest-14
-nextcloud_data_root: /nextcloud/data
-nextcloud_tmp: /nextcloud/tmp
-nextcloud_postgres_db: nextcloud
-nextcloud_postgres_user: nextcloud
-nextcloud_postgres_pw: secret
-nextcloud_admin_user: admin
-nextcloud_admin_pw: secret
-nextcloud_upgrade: yes
-nextcloud_config_options: # additional options to set in config.php
- - { option: overwrite.cli.url, value: "'https://{{ host_fqdn }}/nextcloud'" }
- - { option: mail_smtpmode, value: "''" }
-nextcloud_config_ldap_enabled: false
-nextcloud_config_ldap_options: []
+# nextcloud
+nextcloud_fqdn: "localhost"
+nextcloud_instance_name: mycloud
+nextcloud_db_name: "{{ nextcloud_instance_name }}"
+nextcloud_db_user: "{{ nextcloud_instance_name }}"
+nextcloud_db_user_password: secret
 
-# SSL certificate file paths
-ssl_crt: "/etc/pki/tls/certs/localhost.crt"
-ssl_key: "/etc/pki/tls/private/localhost.key"
+# apache
+apache_24_installed: "{{ centos_7_installed }}"
+apache_host_fqdn: "{{ nextcloud_fqdn }}"
+apache_host_ssl_port: 8443
+apache_ssl_use_chain: false
 
-# https://galaxy.ansible.com/geerlingguy/apache
-apache_allow_override: "All"
-apache_document_root: "/var/www/html"
-apache_mods_enabled:
-  - rewrite.load
-apache_listen_port: 80
-apache_vhosts:
-  - servername: "localhost"
-    documentroot: '{{ apache_document_root }}'
-    extra_parameters: |
-              Redirect permanent / https://{{host_fqdn}}:{{host_ssl_port}}/
-apache_listen_port_ssl: 443
-
-# https://galaxy.ansible.com/geerlingguy/postgresql
+# postgres
 use_postgresql_10: false
-postgresql_databases:
-  - name: '{{ nextcloud_postgres_db }}'
-postgresql_users:
-  - name: '{{ nextcloud_postgres_user }}'
-    password: '{{ nextcloud_postgres_pw }}'
-
-# https://galaxy.ansible.com/geerlingguy/php
-php_memory_limit: "512M"
-php_max_execution_time: "90"
-php_upload_max_filesize: "1024M"
-php_version: '7.3'
-php_packages_state: "latest"
-php_packages: 
-  - php
-  - php-cli
-  - php-common
-  - php-devel
-  - php-fpm
-  - php-gd
-  - php-intl
-  - php-json
-  - php-mbstring
-  - php-mcrypt
-  - php-opcache
-  - php-pdo
-  - php-pdo_pgsql
-  - php-pecl-apcu
-  - php-pecl-redis
-  - php-pecl-zip
-  - php-posix
-  - php-xml
-  - php-fpm
-  - php-pecl-imagick
-php_enablerepo: "epel,remi-php72"
-php_enable_php_fpm: true
-php_opcache_enable_cli: "1"
-php_opcache_interned_strings_buffer: "8"
-php_opcache_max_accelerated_files: "10000"
-php_opcache_memory_consumption: "128"
-php_opcache_revalidate_freq: "1"
-
-
+postgres_db_name: "{{ nextcloud_db_name }}"
+postgres_db_user: "{{ nextcloud_db_user }}"
+postgres_db_user_password: "{{ nextcloud_db_user_password }}"

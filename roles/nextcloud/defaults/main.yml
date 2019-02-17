@@ -1,0 +1,27 @@
+---
+# Nextcloud variables
+nextcloud_repo_url: https://download.nextcloud.com/server/releases
+nextcloud_fqdn: "localhost"
+nextcloud_trusted_domains: ['localhost', '{{ nextcloud_fqdn }}']
+nextcloud_webserver_document_root: /var/www/html
+nextcloud_instance_name: nextcloud
+nextcloud_install_dir: '{{ nextcloud_webserver_document_root }}/{{ nextcloud_instance_name }}'
+nextcloud_backup_dir: /tmp
+nextcloud_version: latest-14
+nextcloud_data_root: /{{ nextcloud_instance_name }}/data
+nextcloud_tmp: /{{ nextcloud_instance_name }}/tmp
+nextcloud_db_name: "{{ nextcloud_instance_name }}"
+nextcloud_db_user: "{{ nextcloud_instance_name }}"
+postgres_db_user_password: secret
+nextcloud_admin_user: admin
+nextcloud_admin_pw: secret
+nextcloud_config_options: # additional options to set in config.php
+ - { option: overwrite.cli.url, value: "'https://{{ nextcloud_fqdn }}/{{ nextcloud_instance_name }}'" }
+ - { option: mail_smtpmode, value: "''" }
+nextcloud_config_disabled_apps: []
+nextcloud_config_enabled_apps: []
+nextcloud_config_installed_apps: []
+nextcloud_config_ldap_enabled: false
+nextcloud_config_ldap_options: []
+nextcloud_config_theming_enabled: false
+nextcloud_config_theming_options: []

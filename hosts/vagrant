@@ -1,0 +1,5 @@
+[vagrant]
+localhost
+
+[local:children]
+vagrant

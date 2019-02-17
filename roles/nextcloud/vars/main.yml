@@ -1,3 +1,0 @@
----
-nextcloud_repo_url: https://download.nextcloud.com/server/releases
-nextcloud_trusted_domains: ['localhost', '{{ host_fqdn }}']

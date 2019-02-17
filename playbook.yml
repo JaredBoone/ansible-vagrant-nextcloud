@@ -2,26 +2,32 @@
 - hosts: vagrant
   user: vagrant
   become: yes
-  vars:
-    server_env: vagrant
   roles:
     - role: postgresql
-      tags: pg
+      tags: postgresql
     - role: apache
       tags: apache
     - role: php
       tags: php
-    - role: geerlingguy.redis
+    - role: prometheus
+      tags: prometheus
+    - role: redis
+      tags: redis
     - role: nextcloud
+      tags: nextcloud
 
 - hosts: remotes
   become: yes
   roles:
     - role: postgresql
-      tags: pg
+      tags: postgresql
     - role: apache
       tags: apache
     - role: php
       tags: php
-    - role: geerlingguy.redis
+    - role: prometheus
+      tags: prometheus
+    - role: redis
+      tags: redis
     - role: nextcloud
+      tags: nextcloud

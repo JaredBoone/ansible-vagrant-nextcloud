@@ -1,0 +1,51 @@
+---
+- name: check - Check integrity of core code using a signature
+  command: 'php {{ nextcloud_install_dir }}/occ integrity:check-core'
+  become: true
+  become_user: apache
+  ignore_errors: true
+  tags: 'backup'
+
+- name: backup - get backup destination base name
+  shell: echo "{{ nextcloud_instance_name }}-`date +'%Y%m%d'`.`date +'%H%M%S'`"
+  register: nextcloud_backup_dest_basename_reg
+  tags: 'backup'
+
+- name: backup - put backup destination base name in fact
+  set_fact: nextcloud_backup_dest_basename="{{ nextcloud_backup_dest_basename_reg.stdout }}"
+  tags: 'backup'
+
+- name: backup - ensure nextcloud is in maintenance mode
+  command: 'php {{ nextcloud_install_dir }}/occ maintenance:mode --on'
+  become: true
+  become_user: apache
+  tags: 'backup'
+
+- name: backup - database 
+  shell: "pg_dump --format=c  --file=/tmp/{{ nextcloud_backup_dest_basename }}.dump {{ nextcloud_db_name }}"
+  become: true
+  become_user: postgres
+  tags: 'backup'
+
+- name: backup - ensure nextcloud is not in maintenance mode
+  command: 'php {{ nextcloud_install_dir }}/occ maintenance:mode --off'
+  become: true
+  become_user: apache
+  tags: 'backup'
+
+- name: backup - backup files
+  archive:
+    path: "{{ nextcloud_install_dir }}"
+    dest: "/tmp/{{ nextcloud_backup_dest_basename }}.files.tgz"
+    format: gz
+  tags: 'backup'
+
+- name: backup - move db backup from tmp dir to backup dir
+  command: "mv /tmp/{{ nextcloud_backup_dest_basename }}.dump {{ nextcloud_backup_dir }}/"
+  become: true
+  tags: 'backup'
+
+- name: backup - move files backup from tmp dir to backup dir
+  command: "mv /tmp/{{ nextcloud_backup_dest_basename }}.files.tgz {{ nextcloud_backup_dir }}/"
+  become: true
+  tags: 'backup'

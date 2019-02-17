@@ -1,6 +1,6 @@
 ---
-- import_tasks: apache22.yml
-  when: not centos_7_installed
+- include_tasks: apache22.yml
+  when: not apache_24_installed
 
-- import_tasks: apache24.yml
-  when: centos_7_installed
+- include_tasks: apache24.yml
+  when: apache_24_installed

@@ -1,17 +1,15 @@
 ---
-# task file for JaredBoone.nextcloud
 
-- import_tasks: 'preinstall.yml'
-  tags: nextcloud
-
+# install
 - import_tasks: 'install.yml'
-  when: new_installation.changed
-  tags: nextcloud
 
+# configure
 - import_tasks: 'postinstall.yml'
-  tags: nextcloud
 
-- import_tasks: 'upgrade.yml'
-  tags: nextcloud
+# backup
+- include_tasks: 'backup.yml'
+  tags: [ 'never', 'backup' ]
 
-
+# upgrade
+- include_tasks: 'upgrade.yml'
+  tags: [ 'never', 'upgrade' ]

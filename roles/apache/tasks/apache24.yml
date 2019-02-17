@@ -1,14 +1,16 @@
 ---
-- import_role: 
+- include_role: 
     name: geerlingguy.apache
   vars:
-    apache_vhosts_ssl:
-      - servername: "{{host_fqdn}}"
+    apache_allow_override: "All"
+    apache_document_root: "/var/www/html"
+    apache_mods_enabled:
+      - rewrite.load
+    apache_listen_port: 80
+    apache_vhosts:
+      - servername: "localhost"
         documentroot: '{{ apache_document_root }}'
-        certificate_file: "{{ ssl_crt }}"
-        certificate_key_file: "{{ ssl_key }}"
         extra_parameters: |
-                  <IfModule mod_headers.c>
-                    Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
-                  </IfModule>
-                  ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000/var/www/html"
+                  Redirect permanent / https://{{apache_host_fqdn}}:{{apache_host_ssl_port}}/
+    apache_listen_port_ssl: 443
+    apache_vhosts_ssl: "{{ lookup('vars','apache_vhosts_ssl_with_chain_apache24') if (apache_ssl_use_chain) else lookup('vars','apache_vhosts_ssl_without_chain_apache24')}}"

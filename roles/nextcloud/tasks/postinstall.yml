@@ -1,6 +1,11 @@
 ---
 # postinstall.yml
 
+- name: ensure nextcloud is in maintenance mode
+  command: 'php {{ nextcloud_install_dir }}/occ maintenance:mode --on'
+  become: true
+  become_user: apache
+
 - name: postinstall - ensure php options are set
   lineinfile:
     path: /etc/php.ini
@@ -17,30 +22,32 @@
   copy:
     src: pdo_pgsql.ini
     dest: /etc/php.d/30-pdo_pgsql.ini
+  notify:
+    - reload php-fpm
 
 - name: postinstall - ensure /index.php is present
   template: 
     src: index.php 
-    dest: /var/www/html/index.php
+    dest: "{{ nextcloud_webserver_document_root }}/index.php"
 
 - name: postinstall - ensure /phpinfo.php is present
   template: 
     src: phpinfo.php 
-    dest: /var/www/html/phpinfo.php
-  when: host_fqdn == "vagrant"
+    dest: "{{ nextcloud_webserver_document_root }}/phpinfo.php"
+  when: nextcloud_fqdn == "localhost"
 
 - name: postinstall - ensure alias for the occ command exists in /root/.bashrc
   lineinfile:
     name: /root/.bashrc
-    line: "alias occ='sudo -u apache {{ nextcloud_web_root }}/occ'"
+    line: "alias occ='sudo -u apache php {{ nextcloud_install_dir }}/occ'"
 
 - name: postinstall - ensure .htaccess is present for caldav/carddav
-  copy:
+  template:
     src: htaccess
-    dest: '{{ apache_document_root }}/.htaccess'
-    mode: 0644
+    dest: '{{ nextcloud_webserver_document_root }}/.htaccess'
     owner: apache
     group: apache
+    mode: 0644
   notify: reload httpd    
 
 - name: ensure php-fpm www.conf settings are correct
@@ -61,10 +68,11 @@
     owner: root
     group: root
     mode: 0644
+  tags: logrotate
 
 # - name: ensure options are set in .user.ini
 #   lineinfile:
-#     path: '{{ nextcloud_web_root }}/.user.ini'
+#     path: '{{ nextcloud_webserver_document_root }}/.user.ini'
 #     regexp: '^{{ item.option }}'
 #     line: '{{ item.option }}={{ item.value }}'
 #   with_items:
@@ -72,18 +80,19 @@
 #     - { option: 'post_max_size', value: '{{ nextcloud_max_upload_size }}' }
 
 - name: install - Check integrity of core code using a signature
-  command: 'php {{ nextcloud_web_root }}/occ integrity:check-core'
+  command: 'php {{ nextcloud_install_dir }}/occ integrity:check-core'
   become: true
   become_user: apache
+  ignore_errors: true
 
 - name: install - update the systems data-fingerprint after a backup is restored
-  command: 'php {{ nextcloud_web_root }}/occ maintenance:data-fingerprint'
+  command: 'php {{ nextcloud_install_dir }}/occ maintenance:data-fingerprint'
   become: true
   become_user: apache
   when: postgresql_db_upgraded is defined  
 
 - name: postinstall - ensure trusted domains are set
-  command: 'php {{ nextcloud_web_root }}/occ config:system:set trusted_domains {{ item.0 }} --value "{{ item.1 }}"'
+  command: 'php {{ nextcloud_install_dir }}/occ config:system:set trusted_domains {{ item.0 }} --value "{{ item.1 }}"'
   become: true
   become_user: apache
   with_indexed_items:
@@ -93,66 +102,152 @@
 # https://docs.nextcloud.com/server/12/admin_manual/configuration_server/server_tuning.html
 
 - name: postinstall - configure APCu for local caching
-  command: 'php {{ nextcloud_web_root }}/occ config:system:set memcache.local --value "\OC\Memcache\APCu"'
+  command: 'php {{ nextcloud_install_dir }}/occ config:system:set memcache.local --value "\OC\Memcache\APCu"'
   become: true
   become_user: apache
 
 - name: performance tuning - use redis for file locking
-  command: 'php {{ nextcloud_web_root }}/occ config:system:set memcache.locking --value "\OC\Memcache\Redis"'
+  command: 'php {{ nextcloud_install_dir }}/occ config:system:set memcache.locking --value "\OC\Memcache\Redis"'
   become: true
   become_user: apache
 
 - name: performance tuning - connect to redis on unixsocket
-  command: 'php {{ nextcloud_web_root }}/occ config:system:set redis "host" --value "localhost"'
+  command: 'php {{ nextcloud_install_dir }}/occ config:system:set redis "host" --value "localhost"'
   become: true
   become_user: apache
 
 - name: performance tuning - connect to redis on unixsocket, set port to 0
-  command: 'php {{ nextcloud_web_root }}/occ config:system:set redis "port" --value 6379'
+  command: 'php {{ nextcloud_install_dir }}/occ config:system:set redis "port" --value 6379'
   become: true
   become_user: apache
 
 - name: postinstall - js and css asset management
-  command: 'php {{ nextcloud_web_root }}/occ config:system:set asset-pipeline.enabled --value true'
+  command: 'php {{ nextcloud_install_dir }}/occ config:system:set asset-pipeline.enabled --value true'
   become: true
   become_user: apache
 
 - name: postinstall - ensure additional options are set in config.php if defined
-  command: 'php {{ nextcloud_web_root }}/occ config:system:set {{ item.option }} --value {{ item.value }}'
+  command: 'php {{ nextcloud_install_dir }}/occ config:system:set {{ item.option }} --value {{ item.value }}'
   become: true
   become_user: apache
   with_items: '{{ nextcloud_config_options }}'
   when: nextcloud_config_options is defined
 
 - name: postinstall - index db tables
-  command: 'php {{ nextcloud_web_root }}/occ --no-interaction db:convert-filecache-bigint'
+  command: 'php {{ nextcloud_install_dir }}/occ --no-interaction db:convert-filecache-bigint'
+  become: true
+  become_user: apache
+
+- name: postinstall - ensure apps are disabled
+  command: 'php {{ nextcloud_install_dir }}/occ app:disable {{ item }}'
+  with_items: '{{ nextcloud_config_disabled_apps }}'
+  become: true
+  become_user: apache
+  tags: disabled_apps
+
+- name: postinstall - ensure apps are enabled
+  command: 'php {{ nextcloud_install_dir }}/occ app:enable {{ item }}'
+  with_items: '{{ nextcloud_config_enabled_apps }}'
+  become: true
+  become_user: apache
+  tags: enabled_apps
+
+- name: postinstall - ensure apps are installed
+  command: 'php {{ nextcloud_install_dir }}/occ app:install {{ item }}'
+  with_items: '{{ nextcloud_config_installed_apps }}'
+  become: true
+  become_user: apache
+  ignore_errors: true
+  tags: installed_apps  
+
+- name: ensure nextcloud is not in maintenance mode
+  command: 'php {{ nextcloud_install_dir }}/occ maintenance:mode --off'
   become: true
   become_user: apache
 
 - name: postinstall - ensure app user_ldap is enabled
-  command: 'php {{ nextcloud_web_root }}/occ app:enable user_ldap'
+  command: 'php {{ nextcloud_install_dir }}/occ app:enable user_ldap'
   become: true
   become_user: apache
   when: nextcloud_config_ldap_enabled
+  tags: ldap_config
+
+- name: postinstall - test existing ldap config
+  command: 'php {{ nextcloud_install_dir }}/occ ldap:test-config s01'
+  become: true
+  become_user: apache
+  register: nextcloud_config_ldap_s01
+  when: nextcloud_config_ldap_enabled
+  tags: ldap_config
+
+- name: postinstall - ensure invalid ldap config is deleted
+  command: 'php {{ nextcloud_install_dir }}/occ ldap:delete-config {{ item }}'
+  become: true
+  become_user: apache
+  when: 
+    - nextcloud_config_ldap_enabled 
+    - nextcloud_config_ldap_s01.stdout.find('established!') == -1
+  with_items:  [ 's01', 's02', 's03', 's04', 's05' ]
+  tags: ldap_config
 
 - name: postinstall - ensure empty ldap config is created
-  command: 'php {{ nextcloud_web_root }}/occ ldap:create-empty-config'
+  command: 'php {{ nextcloud_install_dir }}/occ ldap:create-empty-config'
   become: true
   become_user: apache
-  when: nextcloud_config_ldap_enabled
+  when: 
+    - nextcloud_config_ldap_enabled 
+    - nextcloud_config_ldap_s01.stdout.find('established!') == -1
+  tags: ldap_config
 
 - name: postinstall - ensure ldap config is set
-  command: 'php {{ nextcloud_web_root }}/occ ldap:set-config s01 {{ item.0 }} "{{ item.1 }}"'
+  command: "php {{ nextcloud_install_dir }}/occ ldap:set-config s01 {{ item['option'] }} {{ item['value'] }}"
   become: true
   become_user: apache
-  with_indexed_items:
+  with_items:
     - '{{ nextcloud_config_ldap_options  }}'
-  when: nextcloud_config_ldap_enabled
+  when: 
+    - nextcloud_config_ldap_enabled 
+    - nextcloud_config_ldap_s01.stdout.find('established!') == -1
+  tags: ldap_config
+
+- name: postinstall - ensure ldap config is set to active
+  command: 'php {{ nextcloud_install_dir }}/occ ldap:set-config s01 "ldapConfigurationActive" "1"'
+  become: true
+  become_user: apache
+  when: 
+    - nextcloud_config_ldap_enabled 
+    - nextcloud_config_ldap_s01.stdout.find('established!') == -1
+  tags: ldap_config
+
+- name: postinstall - test existing ldap config
+  command: 'php {{ nextcloud_install_dir }}/occ ldap:test-config s01'
+  become: true
+  become_user: apache
+  when: 
+    - nextcloud_config_ldap_enabled 
+    - nextcloud_config_ldap_s01.stdout.find('established!') == -1
+  tags: ldap_config
+
+- name: postinstall - ensure app theming is enabled
+  command: 'php {{ nextcloud_install_dir }}/occ app:enable theming'
+  become: true
+  become_user: apache
+  when: nextcloud_config_theming_enabled
+  tags: theming
+
+- name: postinstall - ensure theming config is set
+  command: "php {{ nextcloud_install_dir }}/occ config:app:set theming {{ item['option'] }} --value {{ item['value'] }}"
+  become: true
+  become_user: apache
+  with_items:
+    - '{{ nextcloud_config_theming_options  }}'
+  when: nextcloud_config_theming_enabled 
+  tags: theming
 
 - name: postinstall - ensure the nextcloud cronjob exists and runs every 15 min
   cron:
     name: nextcloud
-    minute: 15
+    minute: "*/5"
     user: apache
-    job: 'php -f {{ nextcloud_web_root | quote }}/cron.php'
+    job: 'php -f {{ nextcloud_install_dir | quote }}/cron.php'
     cron_file: 'nextcloud'

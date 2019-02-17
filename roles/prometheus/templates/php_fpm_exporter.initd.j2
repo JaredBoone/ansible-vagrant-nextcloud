@@ -1,0 +1,60 @@
+#!/bin/bash
+#
+# /etc/rc.d/init.d/php_fpm_exporter
+#
+# php_fpm_exporter for Prometheus monitoring server
+#
+#  chkconfig: 2345 20 80 Read
+#  description: php_fpm_exporter for Prometheus monitoring server
+#  processname: php_fpm_exporter
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+PROGNAME=php_fpm_exporter
+PROG=/usr/local/bin/$PROGNAME
+USER=prometheus
+LOGFILE=/var/log/prometheus/php_fpm_exporter.log
+LOCKFILE=/var/run/$PROGNAME.pid
+
+start() {
+    echo -n "Starting $PROGNAME: "
+    daemon --user $USER --pidfile="$LOCKFILE" $PROG --addr {{ php_fpm_exporter_export_ip }}:{{ item.export_port }} \
+    {% if item.fastcgi_endpoint is defined %} --fastcgi {{ item.fastcgi_endpoint }} {% endif -%} \
+    {% if item.http_endpoint is defined %} --endpoint {{ item.http_endpoint }} {% endif %} \
+    &>> $LOGFILE &
+    echo $(pidofproc $PROGNAME) >$LOCKFILE
+    echo
+}
+
+stop() {
+    echo -n "Shutting down $PROGNAME: "
+    killproc $PROGNAME
+    rm -f $LOCKFILE
+    echo
+}
+
+
+case "$1" in
+    start)
+    start
+    ;;
+    stop)
+    stop
+    ;;
+    status)
+    status $PROGNAME
+    ;;
+    restart)
+    stop
+    start
+    ;;
+    reload)
+    echo "Sending SIGHUP to $PROGNAME"
+    kill -SIGHUP $(pidofproc $PROGNAME)
+    ;;
+    *)
+        echo "Usage: <servicename> {start|stop|status|reload|restart}"
+        exit 1
+    ;;
+esac

@@ -1,5 +1,4 @@
 ---
-# handlers file for JaredBoone.nextcloud
 
 - name: reload httpd
   service:

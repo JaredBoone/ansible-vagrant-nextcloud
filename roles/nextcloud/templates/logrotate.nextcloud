@@ -1,9 +1,8 @@
 {{ nextcloud_data_root }}/nextcloud.log {
 	rotate 12
-	weekly
+	monthly
 	missingok
 	notifempty
 	compress
 	su apache apache
-	delaycompress
 }

@@ -1,0 +1,69 @@
+---
+  # - name: php_fpm_exporter | "Get checksum for php-fpm-exporter.linux.amd64"
+  #   set_fact:
+  #     php_fpm_exporter_checksum: "{{ item.split(' ')[0] }}"
+  #   with_items:
+  #     - "{{ lookup('url', 'https://github.com/bakins/php-fpm-exporter/releases/download/v' + php_fpm_exporter_version + '/php-fpm-exporter.linux.amd64.sha256.txt', wantlist=True) | list }}"
+  #   run_once: true
+
+  - name: php_fpm_exporter | Download php_fpm_exporter binary to local folder
+    become: false
+    get_url:
+      url: "{{ php_fpm_exporter_executables }}/releases/download/v{{ php_fpm_exporter_version }}/php-fpm-exporter.linux.amd64"
+      dest: "/tmp/php_fpm_exporter-{{ php_fpm_exporter_version }}.linux.amd64"
+#      checksum: "sha256:{{ php_fpm_exporter_checksum }}"
+    register: _download_binary
+    until: _download_binary is succeeded
+    retries: 5
+    delay: 2
+    delegate_to: localhost
+    check_mode: false
+    run_once: true
+
+  - name: php_fpm_exporter | Propagate php_fpm_exporter binaries
+    copy:
+      src: "/tmp/php_fpm_exporter-{{ php_fpm_exporter_version }}.linux.amd64"
+      dest: "/usr/local/bin/php_fpm_exporter"
+      mode: 0750
+      owner: "{{ php_fpm_exporter_system_user }}"
+      group: "{{ php_fpm_exporter_system_group }}"
+    notify: restart php_fpm_exporters
+    when: not ansible_check_mode
+
+
+  - name: php_fpm_exporter | create service script  (Centos 6)
+    template: src=php_fpm_exporter.initd.j2 dest=/etc/init.d/php_fpm_exporter-{{ item.name }} owner=root group=root mode=0744
+    with_items: "{{ php_fpm_pools }}"
+    when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '<')
+
+  - name: php_fpm_exporter| start and enable php_fpm_exporter at boot
+    service: name=php_fpm_exporter-{{ item.name }} enabled=yes state=started
+    with_items: "{{ php_fpm_pools }}"
+    when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '<')
+
+# TODO
+# https://stackoverflow.com/questions/39144450/set-up-php-fpm-status-page-with-php7-and-apache?rq=1
+
+
+  # - name: php_fpm_exporter | Copy the PHP-FPM Exporter systemd service file
+  #   template:
+  #     src: php_fpm_exporter.service.j2
+  #     dest: /etc/systemd/system/php_fpm_exporter-{{ item.name }}.service
+  #     owner: root
+  #     group: root
+  #     mode: 0644
+  #   with_items: "{{ php_fpm_pools }}"
+  #   when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '>=')
+  #   notify: reload systemd for php_fpm_exporters
+
+  # - name: php_fpm_exporter | If a new service was added SystemD needs to know about it
+  #   meta: flush_handlers
+  #   when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '>=')
+
+  # - name: php_fpm_exporter | Make sure all php_fpm_exporter*.service run at startup
+  #   systemd:
+  #     name: "php_fpm_exporter-{{ item.name }}.service"
+  #     enabled: yes
+  #     state: started
+  #   when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '>=')
+  #   with_items: "{{ php_fpm_pools }}"

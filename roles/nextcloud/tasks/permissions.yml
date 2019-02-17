@@ -1,22 +1,3 @@
 ---
 # permissions.yml
 
-- selinux:
-    state: disabled
-
-- name: ensure occ is executable
-  file:
-    path: '{{ nextcloud_web_root }}/occ'
-    mode: a+x
-
-- name: ensure directories exist with correct permissions
-  file:
-    path: '{{ item  }}'
-    owner: apache
-    group: apache
-    recurse: yes
-    state: directory
-  with_items:
-    - '{{ nextcloud_web_root }}'
-    - '{{ nextcloud_data_root }}'
-    - '{{ nextcloud_tmp }}'

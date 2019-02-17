@@ -1,8 +1,0 @@
----
-- name: preinstall - check if {{ nextcloud_web_root }} is present
-  file:
-    name: '{{ nextcloud_web_root }}'
-    owner: apache
-    group: apache
-    state: directory
-  register: new_installation

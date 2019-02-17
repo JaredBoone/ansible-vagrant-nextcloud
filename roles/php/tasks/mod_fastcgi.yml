@@ -4,7 +4,7 @@
     name: http://ftp.tu-chemnitz.de/pub/linux/dag/redhat/el6/en/x86_64/rpmforge/RPMS/mod_fastcgi-2.4.6-1.el6.rf.x86_64.rpm
     state: present
 
-- name: mod_fastcgi - ensure php.conf is abset
+- name: mod_fastcgi - ensure php.conf is absent
   file:
     state: absent
     path: /etc/httpd/conf.d/php.conf

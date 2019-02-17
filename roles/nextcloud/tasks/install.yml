@@ -1,21 +1,50 @@
 ---
 # install.yml
+- selinux:
+    state: disabled
 
-- name: install - ensure nextcloud is unarchived in {{ nextcloud_web_root }}
+- name: install - check if {{ nextcloud_install_dir }} is present
+  file:
+    name: '{{ nextcloud_install_dir }}'
+    owner: apache
+    group: apache
+    state: directory
+  register: nextcloud_new_installation
+
+- name: install - ensure nextcloud is unarchived in {{ nextcloud_install_dir }}
   unarchive:
     src: '{{ nextcloud_repo_url  }}/{{ nextcloud_version }}.tar.bz2'
     extra_opts:
       - '--strip-components=1'
       - '--show-stored-names'
     remote_src: true
-    dest: '{{ nextcloud_web_root }}'
-  when: new_installation.changed
+    dest: '{{ nextcloud_install_dir }}'
+  when: nextcloud_new_installation.changed
 
-- import_tasks: 'permissions.yml'
+- name: ensure directories exist with correct permissions
+  file:
+    path: '{{ nextcloud_install_dir }}'
+    owner: apache
+    group: apache
+    state: directory
+    recurse: true
+  tags: permissions
+
+- name: ensure directories exist with correct permissions
+  file:
+    path: '{{ item  }}'
+    owner: apache
+    group: apache
+    state: directory
+  with_items:
+    - '{{ nextcloud_data_root }}'
+    - '{{ nextcloud_tmp }}'
+  tags: permissions
 
 - name: install - ensure nextcloud DB install is finished
-  command: 'php {{ nextcloud_web_root }}/occ maintenance:install --database "pgsql" --database-name "{{ nextcloud_postgres_db }}"  --database-user "{{ nextcloud_postgres_user }}" --database-pass "{{ nextcloud_postgres_pw }}" --admin-user "{{ nextcloud_admin_user }}" --admin-pass "{{ nextcloud_admin_pw }}" --data-dir "{{ nextcloud_data_root }}"'
+  command: 'php {{ nextcloud_install_dir }}/occ maintenance:install --database "pgsql" --database-name "{{ nextcloud_db_name }}"  --database-user "{{ nextcloud_db_user }}" --database-pass "{{ nextcloud_db_user_password }}" --admin-user "{{ nextcloud_admin_user }}" --admin-pass "{{ nextcloud_admin_pw }}" --data-dir "{{ nextcloud_data_root }}"'
   become: true
   become_user: apache
+  when: nextcloud_new_installation.changed
 
 
