@@ -1,0 +1,25 @@
+---
+- hosts: all
+  user: vagrant
+  become: yes
+  roles:
+    - role: jaredboone.postgresql-pgdg95
+      tags: postgresql
+      when: not use_postgresql_10
+    - role: jaredboone.postgresql-pgdg10
+      tags: postgresql
+      when: use_postgresql_10
+    - role: jaredboone.apache-2.2
+      tags: apache
+      when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '<')
+    - role: jaredboone.apache-2.4
+      tags: apache
+      when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '>=')
+    - role: jaredboone.php-fpm-remi
+      tags: php-fpm
+    - role: jaredboone.prometheus
+      tags: prometheus
+    - role: geerlingguy.redis
+      tags: redis
+    - role: jaredboone.nextcloud
+      tags: nextcloud

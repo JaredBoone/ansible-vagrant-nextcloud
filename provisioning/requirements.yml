@@ -24,3 +24,13 @@
   name: jaredboone.nextcloud-upgrade
 - src: https://github.com/jaredboone/ansible-role-nextcloud-backup
   name: jaredboone.nextcloud-backup
+- src: https://github.com/jaredboone/ansible-role-postgresql-pgdg95
+  name: jaredboone.postgresql-pgdg95
+- src: https://github.com/jaredboone/ansible-role-postgresql-pgdg10
+  name: jaredboone.postgresql-pgdg10
+- src: https://github.com/jaredboone/ansible-role-apache-2.2
+  name: jaredboone.apache-2.2
+- src: https://github.com/jaredboone/ansible-role-apache-2.4
+  name: jaredboone.apache-2.4
+- src: https://github.com/jaredboone/ansible-role-php-fpm-remi
+  name: jaredboone.php-fpm-remi
