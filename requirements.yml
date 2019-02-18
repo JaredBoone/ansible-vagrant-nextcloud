@@ -16,3 +16,5 @@
   version: 1.2.3
 - src: geerlingguy.repo-remi
   version: 1.2.0
+- src: https://github.com/jaredboone/ansible-role-prometheus
+  name: jaredboone.prometheus

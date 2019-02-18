@@ -9,7 +9,7 @@
       tags: apache
     - role: php
       tags: php
-    - role: prometheus
+    - role: jaredboone.prometheus
       tags: prometheus
     - role: redis
       tags: redis
@@ -25,7 +25,7 @@
       tags: apache
     - role: php
       tags: php
-    - role: prometheus
+    - role: jaredboone.prometheus
       tags: prometheus
     - role: redis
       tags: redis
