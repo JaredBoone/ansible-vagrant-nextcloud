@@ -7,13 +7,13 @@
       tags: postgresql
     - role: apache
       tags: apache
-    - role: php
-      tags: php
+    - role: php-fpm
+      tags: php-fpm
     - role: jaredboone.prometheus
       tags: prometheus
     - role: redis
       tags: redis
-    - role: nextcloud
+    - role: jaredboone.nextcloud
       tags: nextcloud
 
 - hosts: remotes
@@ -23,11 +23,11 @@
       tags: postgresql
     - role: apache
       tags: apache
-    - role: php
-      tags: php
+    - role: php-fpm
+      tags: php-fpm
     - role: jaredboone.prometheus
       tags: prometheus
     - role: redis
       tags: redis
-    - role: nextcloud
+    - role: jaredboone.nextcloud
       tags: nextcloud

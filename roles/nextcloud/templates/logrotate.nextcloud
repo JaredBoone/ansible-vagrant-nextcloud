@@ -1,8 +1,0 @@
-{{ nextcloud_data_root }}/nextcloud.log {
-	rotate 12
-	monthly
-	missingok
-	notifempty
-	compress
-	su apache apache
-}

@@ -1,0 +1,13 @@
+---
+- hosts: vagrant
+  user: vagrant
+  become: yes
+  roles:
+    - role: jaredboone.nextcloud-upgrade
+      tags: upgrade
+
+- hosts: remotes
+  become: yes
+  roles:
+    - role: jaredboone.nextcloud-upgrade
+      tags: upgrade

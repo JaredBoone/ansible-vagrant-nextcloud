@@ -18,3 +18,9 @@
   version: 1.2.0
 - src: https://github.com/jaredboone/ansible-role-prometheus
   name: jaredboone.prometheus
+- src: https://github.com/jaredboone/ansible-role-nextcloud
+  name: jaredboone.nextcloud
+- src: https://github.com/jaredboone/ansible-role-nextcloud-upgrade
+  name: jaredboone.nextcloud-upgrade
+- src: https://github.com/jaredboone/ansible-role-nextcloud-backup
+  name: jaredboone.nextcloud-backup

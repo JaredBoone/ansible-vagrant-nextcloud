@@ -1,0 +1,13 @@
+---
+- hosts: vagrant
+  user: vagrant
+  become: yes
+  roles:
+    - role: jaredboone.nextcloud-backup
+      tags: backup
+
+- hosts: remotes
+  become: yes
+  roles:
+    - role: jaredboone.nextcloud-backup
+      tags: backup
