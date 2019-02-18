@@ -10,6 +10,7 @@
     name: php_fpm_exporter-{{ item.name }}.service
     state: restarted
   with_items: "{{ php_fpm_pools }}"
+  when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '>=')
 
 - name: restart node_exporter
   service: name=node_exporter state=restarted  

@@ -1,6 +1,5 @@
 apache_host_fqdn: "localhost"
 apache_host_ssl_port: 443
-apache_24_installed: false
 
 # SSL certificate file paths
 apache_ssl_crt: "/etc/pki/tls/certs/localhost.crt"

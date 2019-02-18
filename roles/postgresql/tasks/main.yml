@@ -4,7 +4,7 @@
     name: libselinux-python
     state: present
   become: yes
-  when: not centos_7_installed
+  when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '<')
 
 - import_tasks: pgdg95.yml
   when: not use_postgresql_10

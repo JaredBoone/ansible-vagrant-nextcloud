@@ -47,7 +47,7 @@
     php_opcache_revalidate_freq: "1"  
 
 - import_tasks: 'mod_fastcgi.yml'
-  when: not centos_7_installed
+  when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '<')
 
 - import_role: 
     name: geerlingguy.apache-php-fpm

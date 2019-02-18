@@ -4,14 +4,14 @@
     name: https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-6-x86_64/pgdg-centos95-9.5-3.noarch.rpm
     state: present
   become: yes
-  when: not centos_7_installed
+  when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '<')
 
 - name: install pgdg-centos95-9.5-3 PostgreSQL repository
   yum:
     name: https://download.postgresql.org/pub/repos/yum/9.5/redhat/rhel-7-x86_64/pgdg-centos95-9.5-3.noarch.rpm
     state: present
   become: yes
-  when: centos_7_installed
+  when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '>=')
 
 - import_role: 
     name: geerlingguy.postgresql

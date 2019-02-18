@@ -1,6 +1,7 @@
 ---
 - include_tasks: apache22.yml
-  when: not apache_24_installed
+  when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '<')
 
 - include_tasks: apache24.yml
-  when: apache_24_installed
+  when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '>=')
+

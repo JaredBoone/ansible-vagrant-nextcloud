@@ -1,6 +1,4 @@
-centos_7_installed: false
 use_postgresql_10: false
 postgres_db_name: myapp
 postgres_db_user: myappuser
 postgres_db_user_password: secret
-

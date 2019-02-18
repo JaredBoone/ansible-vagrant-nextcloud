@@ -5,7 +5,7 @@
       dest: /tmp
       remote_src: yes
 
-  - name: node_exporter | ensure folder eixsts
+  - name: node_exporter | ensure folder exists
     file:
       path: /opt/prometheus/node_exporter
       state: directory
@@ -24,13 +24,13 @@
 
   - name: node_exporter | create service script  (Centos 7)
     template: src=node_exporter.service dest=/etc/systemd/system/node_exporter.service owner=root group=root mode=0644
-    when: ansible_distribution == 'CentOS' and ansible_distribution_version | version_compare('7.0', '>=')
+    when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '>=')
     notify: daemon-reload-node_exporter
     tags: [service]
 
   - name: node_exporter | create service script  (Centos 6)
     template: src=node_exporter.initd dest=/etc/init.d/node_exporter owner=root group=root mode=0744
-    when: ansible_distribution == 'CentOS' and ansible_distribution_version | version_compare('7.0', '<')
+    when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '<')
     notify: restart node_exporter
     tags: [service]
 
