@@ -1,5 +1,3 @@
-# vagrant-ansible-nextcloud
-
 ## Provision a Nextcloud VM using Vagrant and Ansible
 
 * Step 1: Install the following roles using ansible-galaxy:
