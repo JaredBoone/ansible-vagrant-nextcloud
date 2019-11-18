@@ -1,0 +1,15 @@
+---
+
+- name: Ensure directory exists for local self-signed TLS certs.
+  file:
+    path: "{{ ssl_cert_dir }}"
+    state: directory
+
+- name: Create self-signed certificate, if configured.
+  command: >
+    openssl req -x509 -nodes -subj '/CN={{ nextcloud_fqdn }}' -days 365
+    -newkey rsa:4096 -sha256 -keyout {{ apache_ssl_key }} -out {{ apache_ssl_crt }}
+    creates={{ apache_ssl_crt }}
+
+- name: Create ssl bundle for self signed cert
+  shell: cat {{ apache_ssl_crt }} {{ apache_ssl_key }} > {{ apache_ssl_chain }}

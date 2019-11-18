@@ -1,0 +1,8 @@
+[aws]
+ec2-xxx-xxx-xxx-xxx.us-west-1.compute.amazonaws.com
+
+[aws:vars]
+ansible_user=centos
+
+[remotes:children]
+aws

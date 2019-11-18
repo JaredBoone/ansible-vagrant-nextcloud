@@ -1,0 +1,20 @@
+# nextcloud
+nextcloud_fqdn: "ec2-xxx-xxx-xxx-xxx.us-west-1.compute.amazonaws.com"
+nextcloud_data_root: /var/www/html/{{nextcloud_instance_name}}/data
+nextcloud_tmp: /var/www/html/{{nextcloud_instance_name}}/tmp
+nextcloud_backup_dir: /var/www/html/{{nextcloud_instance_name}}/backup
+nextcloud_config_theming_options:
+ - { option: color, value: "#4D4D4D" }
+ - { option: slogan, value: "'© Jared Boone'" }
+ - { option: name, value: "Drive" }
+ - { option: backgroundMime, value: "backgroundColor"}
+
+# ssl
+ssl_self_signed_cert: true
+
+ # apache
+apache_ssl_crt: "{{ ssl_cert_dir }}/localhost.crt"
+apache_ssl_key: "{{ ssl_cert_dir }}/localhost.key"
+apache_ssl_chain: "{{ ssl_cert_dir }}/ca-bundle.crt"
+apache_ssl_use_chain: false
+

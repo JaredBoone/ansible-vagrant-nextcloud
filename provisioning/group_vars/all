@@ -6,13 +6,16 @@ nextcloud_db_name: "{{ nextcloud_instance_name }}"
 nextcloud_db_user: "{{ nextcloud_instance_name }}"
 nextcloud_db_user_password: secret
 
+# ssl
+ssl_self_signed_cert: false
+ssl_cert_dir: "/etc/sslcerts"
+
 # apache
 apache_host_fqdn: "{{ nextcloud_fqdn }}"
 apache_host_ssl_port: 8443
 apache_ssl_use_chain: false
 
 # postgres
-use_postgresql_10: false
 postgres_db_name: "{{ nextcloud_db_name }}"
 postgres_db_user: "{{ nextcloud_db_user }}"
 postgres_db_user_password: "{{ nextcloud_db_user_password }}"

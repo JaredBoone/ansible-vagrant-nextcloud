@@ -5,10 +5,13 @@
   roles:
     - role: jaredboone.postgresql-pgdg95
       tags: postgresql
-      when: not use_postgresql_10
+      when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '<')
     - role: jaredboone.postgresql-pgdg10
       tags: postgresql
-      when: use_postgresql_10
+      when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '>=')
+    - role: ssl-self-signed-cert
+      tags: ssl
+      when: ssl_self_signed_cert
     - role: jaredboone.apache-2.2
       tags: apache
       when: ansible_distribution == 'CentOS' and ansible_distribution_version is version_compare('7.0', '<')

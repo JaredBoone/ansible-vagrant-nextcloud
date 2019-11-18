@@ -14,7 +14,7 @@ nextcloud_config_installed_apps:
 
 # apache
 apache_host_ssl_port: 443
-apache_ssl_crt: "/etc/sslcerts/{{ nextcloud_fqdn }}.crt"
-apache_ssl_key: "/etc/sslcerts/{{ nextcloud_fqdn }}.key"
-apache_ssl_chain: "/etc/sslcerts/ca-bundle.crt"
+apache_ssl_crt: "{{ ssl_cert_dir }}/{{ nextcloud_fqdn }}.crt"
+apache_ssl_key: "{{ ssl_cert_dir }}/{{ nextcloud_fqdn }}.key"
+apache_ssl_chain: "{{ ssl_cert_dir }}/ca-bundle.crt"
 apache_ssl_use_chain: true
