@@ -11,11 +11,11 @@ nextcloud_config_theming_options:
 
 # ssl
 ssl_self_signed_cert: true
-ssl_cert_dir: "/etc/pki/tls"
+ssl_cert_dir: "/etc/sslcerts"
 
  # apache
-apache_ssl_crt: "{{ ssl_cert_dir }}/certs/localhost.crt"
-apache_ssl_key: "{{ ssl_cert_dir }}/private/localhost.key"
-apache_ssl_chain: "{{ ssl_cert_dir }}/certs/ca-bundle.crt"
+apache_ssl_crt: "{{ ssl_cert_dir }}/localhost.crt"
+apache_ssl_key: "{{ ssl_cert_dir }}/localhost.key"
+apache_ssl_chain: "{{ ssl_cert_dir }}/ca-bundle.crt"
 apache_ssl_use_chain: false
 
