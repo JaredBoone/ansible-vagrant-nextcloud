@@ -1,5 +1,5 @@
 # nextcloud
-nextcloud_version: latest-14
+nextcloud_version: latest
 nextcloud_instance_name: mydrive
 nextcloud_data_root: /{{ nextcloud_instance_name }}/data
 nextcloud_tmp: /{{ nextcloud_instance_name }}/tmp
